@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #E0DBCF;
+  color: #2D2A26;
+  font-family: 'Space Mono', monospace;
+}
+
+/* Utilitários Extras para o visual "Hard Plastic" */
+@layer utilities {
+  .shadow-hard {
+    box-shadow: 4px 4px 0px 0px #2D2A26;
+  }
+  .shadow-inner-hard {
+    box-shadow: inset 2px 2px 0px 0px rgba(0,0,0,0.1);
+  }
+}
