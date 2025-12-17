@@ -1,19 +1,25 @@
+/* Importando as fontes do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  background-color: #E0DBCF;
-  color: #2D2A26;
-  font-family: 'Space Mono', monospace;
+  /* Aplica o fundo bege suave e a fonte padrão de terminal */
+  @apply bg-retro-bg text-retro-dark font-mono;
+  
+  /* Remove suavização da fonte para ficar mais "pixelada" e nítida */
+  -webkit-font-smoothing: none; 
 }
 
-/* Utilitários Extras para o visual "Hard Plastic" */
-@layer utilities {
-  .shadow-hard {
-    box-shadow: 4px 4px 0px 0px #2D2A26;
-  }
-  .shadow-inner-hard {
-    box-shadow: inset 2px 2px 0px 0px rgba(0,0,0,0.1);
-  }
+/* Barra de rolagem personalizada (estilo retrô) */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-retro-case border-l-2 border-retro-dark;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-retro-accent border-2 border-retro-dark;
 }
