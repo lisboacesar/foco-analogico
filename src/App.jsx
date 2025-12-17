@@ -1,65 +1,109 @@
+import { useState, useEffect } from 'react';
+import { useStore } from './store'; // Importando a Store
 import { Player } from './components/Player';
 import { Chat } from './components/Chat';
+import { Login } from './components/Login'; // Importando a Tela de Boot
+
+// Mapa de Cores para o Tailwind aplicar dinamicamente
+const SHELL_COLORS = {
+  classic: 'border-metal-light bg-metal-dark', 
+  cobalt: 'border-blue-900 bg-[#0a1020]',     
+  safety: 'border-orange-900 bg-[#1a1005]',
+  void: 'border-[#111] bg-[#050505]',
+};
+
+// Mapa de "Tintas" para detalhes (botões e acentos)
+const ACCENT_COLORS = {
+  classic: 'text-sci-text',
+  cobalt: 'text-blue-400',
+  safety: 'text-orange-400',
+  void: 'text-gray-400',
+};
 
 function App() {
-  return (
-    <div className="min-h-screen p-6 md:p-12 flex flex-col items-center">
+  const { user, shell } = useStore(); // Pegamos o usuário e a cor da store
+  const [isOpen, setIsOpen] = useState(true);
 
-      {/* --- HEADER --- */}
-      <header className="mb-12 text-center space-y-6">
-        {/* Título com fonte Arcade e sombra dura */}
-        <h1 className="text-3xl md:text-5xl font-display text-retro-accent leading-tight"
-            style={{ textShadow: '4px 4px 0px #1A1A1A' }}>
-          FOCO ANALOGICO
+  useEffect(() => {
+    const checkSize = () => setIsOpen(window.innerWidth >= 1024);
+    checkSize();
+    window.addEventListener('resize', checkSize);
+    return () => window.removeEventListener('resize', checkSize);
+  }, []);
+
+  // SE NÃO TIVER USUÁRIO, MOSTRA A TELA DE BOOT
+  if (!user) {
+    return <Login />;
+  }
+
+  // Define a classe de cor baseada na escolha
+  const shellClass = SHELL_COLORS[shell] || SHELL_COLORS.classic;
+  const accentClass = ACCENT_COLORS[shell] || ACCENT_COLORS.classic;
+
+  return (
+    <div className="min-h-screen w-full bg-starfield flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden text-sci-text selection:bg-sci-text selection:text-black">
+      
+      <header className="mb-8 text-center space-y-2">
+        <h1 className={`text-3xl md:text-5xl font-display text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]`}>
+          DEV TUNES
         </h1>
-        
-        {/* Subtítulo estilo "etiqueta" */}
-        <div className="inline-block bg-retro-dark text-retro-terminal px-4 py-2 font-mono text-xs md:text-sm shadow-hard-sm tracking-wider">
-          ESTAÇÃO DE FOCO DE BAIXA FREQUÊNCIA // V1.0
+        <div className="text-xs font-mono tracking-[0.2em] opacity-60 flex justify-center items-center gap-2">
+          <span>♦</span> OPERATOR: <span className={accentClass}>{user}</span> <span>♦</span>
         </div>
       </header>
 
-      {/* --- GRID PRINCIPAL (O Console) --- */}
-      <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 w-full max-w-6xl items-start">
+      {/* --- O DISPOSITIVO (Com cor dinâmica) --- */}
+      <div className={`
+        ${shellClass} border-4 p-3 rounded-3xl shadow-hull relative transition-all duration-1000 ease-in-out
+        ${isOpen ? 'flex flex-row gap-4 w-full max-w-5xl aspect-[16/9] max-h-[600px]' : 'flex flex-col gap-4 w-[360px] pb-8'}
+      `}>
+        
+        {/* Parafusos */}
+        <div className="absolute top-4 left-4 w-3 h-3 rounded-full bg-metal-screw shadow-inner flex items-center justify-center"><div className="w-full h-[1px] bg-black/50 rotate-45"></div></div>
+        <div className="absolute top-4 right-4 w-3 h-3 rounded-full bg-metal-screw shadow-inner flex items-center justify-center"><div className="w-full h-[1px] bg-black/50 rotate-45"></div></div>
+        <div className="absolute bottom-4 left-4 w-3 h-3 rounded-full bg-metal-screw shadow-inner flex items-center justify-center"><div className="w-full h-[1px] bg-black/50 rotate-45"></div></div>
+        <div className="absolute bottom-4 right-4 w-3 h-3 rounded-full bg-metal-screw shadow-inner flex items-center justify-center"><div className="w-full h-[1px] bg-black/50 rotate-45"></div></div>
 
-        {/* MÓDULO 1: PLAYER (Caixa Cinza) */}
-        <div className="bg-retro-case border-4 border-retro-dark p-6 shadow-hard relative">
-          {/* Parafusos Decorativos nos cantos */}
-          <div className="absolute top-3 left-3 w-2 h-2 rounded-full border border-retro-dark opacity-40"></div>
-          <div className="absolute top-3 right-3 w-2 h-2 rounded-full border border-retro-dark opacity-40"></div>
-          <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full border border-retro-dark opacity-40"></div>
-          <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full border border-retro-dark opacity-40"></div>
-
-          <div className="mb-6 text-center font-display text-[10px] text-retro-dark opacity-50 uppercase tracking-widest">
-            Stereo Audio System
+        {/* --- MÓDULO DE ÁUDIO --- */}
+        <div className={`
+          bg-black/20 border-2 border-black/30 rounded-xl p-4 flex flex-col gap-4 relative shadow-bezel transition-all
+          ${isOpen ? 'w-5/12' : 'w-full'}
+        `}>
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[10px] font-display text-metal-screw uppercase tracking-widest opacity-50">
+            Audio Module
           </div>
-          
-          {/* Aqui vai o player (ainda vamos estilizar ele por dentro) */}
-          <Player />
+          <Player compact={!isOpen} />
         </div>
 
-        {/* MÓDULO 2: CHAT (Caixa Cinza) */}
-        <div className="bg-retro-case border-4 border-retro-dark p-6 shadow-hard relative">
-          {/* Parafusos Decorativos */}
-          <div className="absolute top-3 left-3 w-2 h-2 rounded-full border border-retro-dark opacity-40"></div>
-          <div className="absolute top-3 right-3 w-2 h-2 rounded-full border border-retro-dark opacity-40"></div>
-          <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full border border-retro-dark opacity-40"></div>
-          <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full border border-retro-dark opacity-40"></div>
+        {/* --- MÓDULO DE DADOS --- */}
+        <div className={`
+          flex flex-col relative transition-all
+          ${isOpen ? 'w-7/12 h-full' : 'w-full h-[400px]'}
+        `}>
           
-          <div className="mb-6 text-center font-display text-[10px] text-retro-dark opacity-50 uppercase tracking-widest">
-            Net-Link 56k Terminal
+          <div className="grid grid-cols-3 px-4 gap-1 transform translate-y-[2px]">
+            <button className="bg-metal-dark border-t-2 border-l-2 border-r-2 border-black/30 py-2 rounded-t-lg text-sci-text font-display text-[10px] md:text-xs shadow-[0_-2px_4px_rgba(0,0,0,0.2)] z-10 w-full text-center truncate">
+              CHAT
+            </button>
+            <button className="bg-metal-dark/50 border-t-2 border-l-2 border-r-2 border-black/10 py-2 rounded-t-lg text-metal-screw font-display text-[10px] md:text-xs hover:bg-metal-dark/80 transition-colors w-full text-center truncate">
+              REGRAS
+            </button>
+            <button className="bg-metal-dark/50 border-t-2 border-l-2 border-r-2 border-black/10 py-2 rounded-t-lg text-metal-screw font-display text-[10px] md:text-xs hover:bg-metal-dark/80 transition-colors w-full text-center truncate">
+              FÓRUM
+            </button>
           </div>
 
-          {/* Aqui vai o chat (ainda vamos estilizar ele por dentro) */}
-          <Chat />
+          <div className="flex-1 bg-metal-dark border-4 border-black/30 rounded-xl rounded-tl-none p-1 shadow-bezel overflow-hidden relative z-0">
+             <Chat />
+          </div>
         </div>
 
-      </main>
-
-      {/* --- FOOTER --- */}
-      <footer className="mt-16 text-center font-mono text-xs opacity-40 uppercase">
-        © 198X Analog Systems Corp. // All rights reserved.
+      </div>
+      
+      <footer className="mt-8 text-metal-screw text-[10px] font-mono select-none">
+        © 20XX DEV SYSTEMS CORP. // SYSTEM READY
       </footer>
+
     </div>
   );
 }

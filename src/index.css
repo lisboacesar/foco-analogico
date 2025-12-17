@@ -1,25 +1,37 @@
-/* Importando as fontes do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* RESET TOTAL - MUNDO FÍSICO */
 body {
-  /* Aplica o fundo bege suave e a fonte padrão de terminal */
-  @apply bg-retro-bg text-retro-dark font-mono;
-  
-  /* Remove suavização da fonte para ficar mais "pixelada" e nítida */
-  -webkit-font-smoothing: none; 
+  background-color: #222222; /* A "Mesa" escura */
+  color: #4AF626;            /* Padrão Terminal */
+  font-family: 'VT323', monospace;
+  overflow: hidden;          /* O app controla a rolagem interna, não o body */
+  -webkit-font-smoothing: none; /* Pixel perfect */
 }
 
-/* Barra de rolagem personalizada (estilo retrô) */
+/* Scrollbar estilo Terminal antigo */
 ::-webkit-scrollbar {
-  width: 12px;
-}
-::-webkit-scrollbar-track {
-  @apply bg-retro-case border-l-2 border-retro-dark;
+  width: 14px;
+  background: #0D0D0D;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-retro-accent border-2 border-retro-dark;
+  background: #2C5E2E; 
+  border: 2px solid #0D0D0D;
+}
+
+/* Utilitário para efeito de CRT */
+.scanlines {
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0,0,0,0.2) 50%,
+    rgba(0,0,0,0.2)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
 }

@@ -4,102 +4,81 @@ import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 
 export const Player = () => {
   const { isPlaying, togglePlay, volume, setVolume } = useStore();
-  
-  // Criamos uma referência direta para o elemento de áudio HTML
   const audioRef = useRef(null);
 
-  // Efeito 1: Sincroniza o Play/Pause
   useEffect(() => {
     if (isPlaying) {
-      audioRef.current.play().catch(error => {
-        console.log("Erro ao tentar tocar (o navegador pode ter bloqueado):", error);
-      });
+      audioRef.current.play().catch(e => console.error(e));
     } else {
       audioRef.current.pause();
     }
   }, [isPlaying]);
 
-  // Efeito 2: Sincroniza o Volume
   useEffect(() => {
-    if (audioRef.current) {
-      // O HTML Audio usa volume de 0.0 a 1.0, mas nosso slider é 0 a 100
-      audioRef.current.volume = volume / 100;
-    }
+    if (audioRef.current) audioRef.current.volume = volume / 100;
   }, [volume]);
 
   return (
-    <div className="flex flex-col items-center gap-6 w-full max-w-xs mx-auto">
-      
-      {/* --- O ELEMENTO DE ÁUDIO INVISÍVEL --- */}
-      {/* Usamos um stream de rádio Lofi online estável */}
-      <audio 
-        ref={audioRef} 
-        src="https://stream.zeno.fm/0r0xa792kwzuv" 
-        crossOrigin="anonymous"
-      />
+    <div className="flex flex-col h-full gap-6 justify-center">
+      <audio ref={audioRef} src="https://stream.zeno.fm/0r0xa792kwzuv" crossOrigin="anonymous" />
 
-      {/* --- VISOR LCD --- */}
-      <div className="w-full bg-retro-screen border-4 border-retro-dark/50 rounded-lg p-4 shadow-inset relative overflow-hidden transition-all duration-300">
-        {/* Brilho na tela */}
-        <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-white/10 to-transparent pointer-events-none"></div>
+      {/* TELA DO PLAYER */}
+      <div className="bg-sci-base border-4 border-metal-bezel rounded-lg p-4 shadow-[inset_0_0_20px_rgba(0,0,0,1)] relative overflow-hidden min-h-[120px] flex flex-col justify-center items-center">
+        {/* Reflexo no vidro */}
+        <div className="absolute top-0 right-0 w-[150%] h-[50%] bg-gradient-to-b from-white/5 to-transparent -rotate-12 pointer-events-none"></div>
         
-        <div className={`font-mono text-retro-terminal text-sm text-center ${isPlaying ? 'animate-pulse' : ''}`}>
-          {isPlaying ? "▶ TOCANDO: LOFI RADIO" : "❚❚ AGUARDANDO COMANDO"}
+        <div className={`font-mono text-xl text-sci-text text-shadow-glow ${isPlaying ? 'animate-pulse' : 'opacity-50'}`}>
+          {isPlaying ? "♪ ANALOG VIBES" : "WAITING INPUT..."}
         </div>
-        
-        {/* Visualizador de Áudio Fake (Barrinhas animadas) */}
-        <div className="mt-3 flex justify-center gap-1 h-4 items-end opacity-80">
-           {[...Array(8)].map((_, i) => (
-             <div 
-               key={i} 
-               className={`w-2 bg-retro-terminal transition-all duration-300 ${isPlaying ? 'animate-bounce' : 'h-1'}`}
-               style={{ 
-                 height: isPlaying ? `${Math.random() * 100}%` : '10%',
-                 animationDelay: `${i * 0.1}s` 
-               }} 
-             ></div>
-           ))}
+        <div className="text-[10px] text-sci-text/50 font-display mt-2 tracking-widest">
+           {isPlaying ? "STREAMING DATA..." : "SYSTEM IDLE"}
         </div>
       </div>
 
-      {/* --- CONTROLES --- */}
-      <div className="flex items-center gap-4">
-        {/* Botão Voltar (Decorativo por enquanto, pois é rádio ao vivo) */}
-        <button className="bg-retro-primary w-12 h-12 border-4 border-retro-dark shadow-hard-sm flex items-center justify-center active:translate-y-1 active:shadow-none transition-all group">
-          <SkipBack className="text-white group-active:scale-90 transition-transform" size={20} fill="currentColor" />
-        </button>
-
-        {/* Botão Play/Pause (Laranjão) */}
+      {/* CONTROLES PRINCIPAIS */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* BOTÃO PLAY GIGANTE (LARANJA) */}
         <button 
           onClick={togglePlay}
-          className="bg-retro-accent w-16 h-16 border-4 border-retro-dark shadow-hard flex items-center justify-center active:translate-y-1 active:shadow-none transition-all rounded-sm group"
+          className="col-span-2 bg-action-orange border-b-4 border-r-4 border-black rounded shadow-btn active:shadow-btn-pressed active:translate-y-1 active:border-none transition-all h-20 flex items-center justify-center group"
         >
           {isPlaying ? (
-            <Pause className="text-retro-dark group-active:scale-90 transition-transform" size={32} fill="currentColor" />
+             <Pause size={40} className="text-black drop-shadow-md" fill="currentColor" />
           ) : (
-            <Play className="text-retro-dark group-active:scale-90 transition-transform" size={32} fill="currentColor" />
+             <Play size={40} className="text-black drop-shadow-md" fill="currentColor" />
           )}
         </button>
 
-        {/* Botão Avançar */}
-        <button className="bg-retro-primary w-12 h-12 border-4 border-retro-dark shadow-hard-sm flex items-center justify-center active:translate-y-1 active:shadow-none transition-all group">
-          <SkipForward className="text-white group-active:scale-90 transition-transform" size={20} fill="currentColor" />
+        {/* BOTÕES DE NAVEGAÇÃO (VERMELHO E AZUL) */}
+        <button className="bg-action-red border-b-4 border-r-4 border-black rounded shadow-btn active:shadow-btn-pressed active:translate-y-1 transition-all h-14 flex items-center justify-center hover:brightness-110">
+          <SkipBack size={24} className="text-black" fill="currentColor" />
+        </button>
+        <button className="bg-action-cyan border-b-4 border-r-4 border-black rounded shadow-btn active:shadow-btn-pressed active:translate-y-1 transition-all h-14 flex items-center justify-center hover:brightness-110">
+          <SkipForward size={24} className="text-black" fill="currentColor" />
         </button>
       </div>
 
-      {/* --- VOLUME --- */}
-      <div className="flex items-center gap-3 w-full px-4">
-        <Volume2 size={16} className="text-retro-dark opacity-50" />
+      {/* KNOB DE VOLUME (AMARELO) */}
+      <div className="mt-auto pt-4 flex items-center gap-4 bg-metal-dark/50 p-3 rounded-lg border border-metal-light/20">
+        <Volume2 className="text-action-yellow" size={20} />
+        {/* Estilizando o slider para parecer uma fita ou régua industrial */}
         <input 
           type="range" 
           min="0" 
           max="100" 
           value={volume} 
           onChange={(e) => setVolume(e.target.value)}
-          className="w-full h-4 bg-retro-dark appearance-none rounded-full border-2 border-transparent accent-retro-accent cursor-pointer opacity-80 hover:opacity-100"
+          className="w-full h-4 bg-metal-dark rounded-full appearance-none border-2 border-metal-light cursor-pointer
+            [&::-webkit-slider-thumb]:appearance-none 
+            [&::-webkit-slider-thumb]:w-6 
+            [&::-webkit-slider-thumb]:h-6 
+            [&::-webkit-slider-thumb]:bg-action-yellow 
+            [&::-webkit-slider-thumb]:rounded-full 
+            [&::-webkit-slider-thumb]:border-2 
+            [&::-webkit-slider-thumb]:border-black
+            [&::-webkit-slider-thumb]:shadow-md"
         />
       </div>
-
     </div>
   );
 };

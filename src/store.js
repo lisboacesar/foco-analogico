@@ -12,10 +12,15 @@ export const useStore = create((set) => ({
   chatMessages: [
     { id: 1, user: "System", text: "Conexão estabelecida. 2400 baud." },
     { id: 2, user: "RetroBot", text: "Bem-vindo à estação de foco." },
-    { id: 3, user: "Dev", text: "Sistema operacional... OK." }
   ],
-  
   addChatMessage: (msg) => set((state) => ({ 
     chatMessages: [...state.chatMessages, msg] 
   })),
+
+  // --- IDENTIDADE E PERSONALIZAÇÃO (NOVO) ---
+  user: null, // Começa sem usuário (vai forçar o login)
+  setUser: (name) => set({ user: name }),
+
+  shell: 'classic', // Cor padrão da carcaça
+  setShell: (color) => set({ shell: color }),
 }))
