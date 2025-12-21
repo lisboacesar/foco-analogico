@@ -7,41 +7,52 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Metais e Estrutura
-        metal: {
-          dark: '#1a1a1c',    // Chassi principal
-          light: '#2d2d30',   // Relevos
-          bezel: '#0f0f10',   // Moldura da tela
-          screw: '#555555',   // Parafusos
+        plastic: {
+          base: '#1a1a1d',      // Plástico Preto Fosco
+          light: '#2c2c30',     // Borda iluminada
+          dark: '#0d0d0f',      // Sombra profunda
+          face: '#222225',      // Superfície dos botões
         },
-        // Luzes e Telas
-        sci: {
-          base: '#050a05',    // Fundo da tela (Preto esverdeado profundo)
-          text: '#4af626',    // Verde Terminal (Fiel à imagem)
-          dim: '#1e3a1e',     // Elementos desligados
+        screen: {
+          base: '#050a05',      // Preto CRT
+          text: '#4af626',      // Verde Fósforo
         },
-        // Botões Físicos (Paleta Tática)
         action: {
-          orange: '#ff8800',  // Botão Play
-          yellow: '#fbbf24',  // Botão/Knob Volume
-          red: '#dc2626',     // Botão Send/Stop
-          cyan: '#06b6d4',    // Botões de navegação
-          gray: '#374151',    // Botões inativos/abas
+          orange: '#ff8800',
+          red: '#dc2626',
         }
       },
-      fontFamily: {
-        display: ['"Press Start 2P"', 'cursive'],
-        mono: ['"VT323"', 'monospace'],
-      },
       boxShadow: {
-        // Efeito 3D Industrial (Luz vindo do topo-esquerda)
-        'hull': '8px 8px 16px 0px rgba(0,0,0,0.6), inset 1px 1px 0px 0px rgba(255,255,255,0.1)', 
-        'bezel': 'inset 4px 4px 8px 0px rgba(0,0,0,0.9), 0px 0px 0px 2px rgba(255,255,255,0.05)',
-        'btn': '4px 4px 0px 0px rgba(0,0,0,0.8), inset 2px 2px 0px 0px rgba(255,255,255,0.1)',
-        'btn-pressed': 'inset 4px 4px 8px 0px rgba(0,0,0,0.5)',
+        // O efeito "Objeto Físico"
+        'device': 'inset 0 2px 3px #2c2c30, 0 20px 40px -10px rgba(0,0,0,0.8), 0 5px 10px -5px rgba(0,0,0,0.5)',
+        // O efeito "Tela Afundada"
+        'screen': 'inset 0 4px 10px rgba(0,0,0,0.9), 0 0 0 2px #0d0d0f',
+        // O efeito "Botão Elevado"
+        'btn': '0 4px 6px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+        // O efeito "Botão Pressionado"
+        'btn-pressed': 'inset 0 2px 4px rgba(0,0,0,0.5), 0 0 0 transparent',
       },
       backgroundImage: {
-        'starfield': 'radial-gradient(circle at center, #111827 0%, #000000 100%)',
+        // Textura de Ruído (Noise) via SVG Base64
+        'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E\")",
+      },
+      animation: {
+        'glitch-1': 'glitch1 3s infinite linear alternate-reverse',
+        'glitch-2': 'glitch2 2.5s infinite linear alternate',
+      },
+      keyframes: {
+        glitch1: {
+          '0%, 95%': { display: 'none', transform: 'translate(0)', clipPath: 'inset(0 0 0 0)' },
+          '96%': { display: 'block', transform: 'translate(-3px, 2px)', clipPath: 'inset(20% 0 50% 0)' },
+          '98%': { display: 'block', transform: 'translate(3px, -1px)', clipPath: 'inset(60% 0 10% 0)' },
+          '100%': { display: 'block', transform: 'translate(-2px, 1px)', clipPath: 'inset(10% 0 70% 0)' },
+        },
+        glitch2: {
+          '0%, 95%': { display: 'none', transform: 'translate(0)' },
+          '96%': { display: 'block', transform: 'translate(2px, -2px)', clipPath: 'inset(10% 0 60% 0)' },
+          '98%': { display: 'block', transform: 'translate(-3px, 1px)', clipPath: 'inset(40% 0 20% 0)' },
+          '100%': { display: 'block', transform: 'translate(2px, 0px)', clipPath: 'inset(80% 0 5% 0)' },
+        },
       }
     },
   },
