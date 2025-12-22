@@ -1,21 +1,25 @@
 import { create } from 'zustand'
 
 export const useStore = create((set) => ({
-  // --- TEMA (Dark Mode) ---
-  isDarkMode: false, // Começa no Light Mode
+  // --- TEMA ---
+  isDarkMode: false,
   toggleTheme: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
 
-  // --- USUÁRIO (Login) ---
+  // --- USUÁRIO ---
   user: null,
   setUser: (name) => set({ user: name }),
   
-  // --- PLAYER ---
+  // --- PLAYER & VIDEO ---
   isPlaying: false,
   togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
   volume: 50,
   setVolume: (val) => set({ volume: val }),
+  
+  // NOVO: Controle de Vídeo de Fundo
+  currentVideo: 1, // Começa com o bg1.mp4
+  setVideo: (id) => set({ currentVideo: id }), // Função para trocar
 
-  // --- CHAT ---
+  // --- CHAT & TERMINAL ---
   chatMessages: [
     { id: 1, user: "System", text: "Boot sequence complete." },
     { id: 2, user: "RetroBot", text: "Ready for audio Input." },
@@ -23,4 +27,5 @@ export const useStore = create((set) => ({
   addChatMessage: (msg) => set((state) => ({ 
     chatMessages: [...state.chatMessages, msg] 
   })),
+  clearChatMessages: () => set({ chatMessages: [] }),
 }))

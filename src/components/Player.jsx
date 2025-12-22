@@ -2,15 +2,40 @@ import { useEffect, useRef } from "react";
 import { useStore } from "../store";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 
-const PIXEL_ART_URL = "https://i.pinimg.com/originals/2b/53/03/2b53037859d6be48a5651d9998671631.gif";
+// --- IMPORTAÇÃO DOS 9 GIFS ---
+import gif1 from '../videos/bg1.gif';
+import gif2 from '../videos/bg2.gif';
+import gif3 from '../videos/bg3.gif';
+import gif4 from '../videos/bg4.gif';
+import gif5 from '../videos/bg5.gif';
+import gif6 from '../videos/bg6.gif';
+import gif7 from '../videos/bg7.gif';
+import gif8 from '../videos/bg8.gif';
+import gif9 from '../videos/bg9.gif';
+
+const backgroundMap = {
+  1: gif1,
+  2: gif2,
+  3: gif3,
+  4: gif4,
+  5: gif5,
+  6: gif6,
+  7: gif7,
+  8: gif8,
+  9: gif9
+};
 
 export const Player = ({ compact }) => {
-  const { isPlaying, togglePlay, volume, setVolume } = useStore();
+  const { isPlaying, togglePlay, volume, setVolume, currentVideo } = useStore();
   const audioRef = useRef(null);
 
+  // Controle APENAS do Áudio
   useEffect(() => {
-    if (isPlaying) audioRef.current.play().catch(e => console.error(e));
-    else audioRef.current.pause();
+    if (isPlaying) { 
+        audioRef.current.play().catch(e => console.error("Erro Audio:", e));
+    } else { 
+        audioRef.current.pause();
+    }
   }, [isPlaying]);
 
   useEffect(() => { if (audioRef.current) audioRef.current.volume = volume / 100; }, [volume]);
@@ -19,34 +44,32 @@ export const Player = ({ compact }) => {
     <div className="flex flex-col h-full gap-8 relative">
       <audio ref={audioRef} src="https://stream.zeno.fm/0r0xa792kwzuv" crossOrigin="anonymous" />
 
-      {/* --- TELA LCD CRT --- */}
-      {/* Usando a nova variável --screen-bg para fundo sempre escuro */}
+      {/* --- DISPLAY --- */}
       <div className="relative w-full aspect-[4/3] bg-[var(--screen-bg)] rounded-md overflow-hidden shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),_inset_0_-2px_4px_rgba(0,0,0,0.7)] border-2 border-[var(--screen-border)] group">
         
-        {/* Camada Pixel Art Base (Mais escura quando pausado) */}
-        <div 
-          className={`absolute inset-0 bg-cover bg-center image-pixelated transition-all duration-500 ${isPlaying ? 'opacity-60' : 'grayscale opacity-20'}`}
-          style={{ backgroundImage: `url(${PIXEL_ART_URL})` }}
-        ></div>
+        {/* GIF DE FUNDO */}
+        <img 
+            key={currentVideo} 
+            src={backgroundMap[currentVideo] || backgroundMap[1]} 
+            alt="Retro Visualizer"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isPlaying ? 'opacity-80' : 'opacity-20 grayscale'}`}
+        />
 
-        {/* --- NOVO GLITCH SUAVE CONSTANTE --- */}
-        {/* Camadas Ciano e Magenta sempre presentes, mais visíveis no play */}
-        <div className={`absolute inset-0 bg-cover bg-center image-pixelated animate-glitch-cyan pointer-events-none transition-opacity duration-300 ${isPlaying ? 'opacity-50' : 'opacity-20'}`} style={{ backgroundImage: `url(${PIXEL_ART_URL})` }}></div>
-        <div className={`absolute inset-0 bg-cover bg-center image-pixelated animate-glitch-magenta pointer-events-none transition-opacity duration-300 ${isPlaying ? 'opacity-50' : 'opacity-20'}`} style={{ backgroundImage: `url(${PIXEL_ART_URL})` }}></div>
+        {/* Overlay Pixel Art */}
+        <div className="absolute inset-0 bg-[url('https://upload.wikimedia.org/wikipedia/commons/3/3a/Transparent_pixel_art.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
 
-
-        {/* Scanlines e Reflexo */}
+        {/* Scanlines */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.4)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_3px,3px_100%] pointer-events-none z-10 opacity-60"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none z-20"></div>
 
-        {/* Texto da Tela (Agora usando a classe text-neon) */}
+        {/* Info na Tela */}
         <div className="absolute top-4 left-4 z-30 font-mono text-neon">
-          <div className="text-xs opacity-80 mb-1">STATUS: {isPlaying ? "ACTIVE" : "STANDBY"}</div>
-          <div className="text-lg font-bold">{isPlaying ? "♪ LOFI STREAM" : "NO SIGNAL"}</div>
+          <div className="text-xs opacity-80 mb-1">CH: 0{currentVideo} // {isPlaying ? "ACTIVE" : "STANDBY"}</div>
+          <div className="text-lg font-bold drop-shadow-md">{isPlaying ? "♪ LOFI STREAM" : "NO SIGNAL"}</div>
         </div>
       </div>
 
-      {/* --- CONTROLES FÍSICOS --- */}
+      {/* --- CONTROLES --- */}
       <div className="grid grid-cols-3 gap-4">
         <button className="ko-key ko-key-gray h-16"><SkipBack size={24} /></button>
         <button onClick={togglePlay} className="ko-key ko-key-orange h-16">

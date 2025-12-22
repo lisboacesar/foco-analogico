@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Player } from './components/Player';
 import { Chat } from './components/Chat';
 import { Login } from './components/Login';
@@ -6,7 +6,8 @@ import { useStore } from './store';
 import { Moon, Sun } from 'lucide-react';
 
 function App() {
-  const { user, isDarkMode, toggleTheme } = useStore();
+  // 1. Trazemos as funções de controle da Store
+  const { user, isDarkMode, toggleTheme, togglePlay, volume, setVolume } = useStore();
   const [isOpen, setIsOpen] = useState(true);
 
   // Sensor de Responsividade
@@ -17,19 +18,60 @@ function App() {
     return () => window.removeEventListener('resize', checkSize);
   }, []);
 
+  // --- 2. LÓGICA DE ATALHOS DE TECLADO (A Mágica Acontece Aqui) ---
+  const handleKeyPress = useCallback((event) => {
+    // A REGRA DE OURO: Se o usuário estiver digitando num input, IGNORE o atalho.
+    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    switch (event.code) {
+      case 'Space': // Barra de Espaço: Play/Pause
+        event.preventDefault(); // Impede a página de rolar para baixo
+        togglePlay();
+        break;
+
+      case 'KeyM': // Tecla M: Mute (Zera volume ou volta para 50%)
+        const newMuteVolume = volume > 0 ? 0 : 50;
+        setVolume(newMuteVolume);
+        break;
+        
+      case 'ArrowUp': // Seta Cima: Aumenta Volume (+10)
+        event.preventDefault();
+        setVolume(Math.min(parseInt(volume) + 10, 100)); // Math.min impede passar de 100
+        break;
+
+      case 'ArrowDown': // Seta Baixo: Diminui Volume (-10)
+        event.preventDefault();
+        setVolume(Math.max(parseInt(volume) - 10, 0)); // Math.max impede passar de 0
+        break;
+        
+      // (Futuro) case 'KeyK': Poderíamos abrir um modal de ajuda aqui
+      default:
+        break;
+    }
+  }, [togglePlay, volume, setVolume]); // Dependências para o useCallback
+
+  // Adiciona e remove o ouvinte de teclado quando o app monta/desmonta
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
+
+
   if (!user) return <Login />;
 
   return (
-    // Aplica a classe 'dark' no container principal se isDarkMode for true
     <div className={`min-h-screen w-full flex items-center justify-center p-4 md:p-8 transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
       
       {/* --- O APARELHO (CHASSI PRINCIPAL) --- */}
       <div className={`
-        bg-[var(--chassis-bg)] /* Usa variável CSS para cor do chassi */
-        border-2 border-[var(--chassis-border)] /* Borda reativa */
+        bg-[var(--chassis-bg)] border-2 border-[var(--chassis-border)] 
         p-6 rounded-[16px]
-        shadow-[10px_14px_30px_var(--shadow-color),_-2px_-2px_10px_rgba(255,255,255,0.1)] /* Sombra reativa */
-        relative transition-all duration-500 ease-in-out
+        shadow-[10px_14px_30px_var(--shadow-color),_-2px_-2px_10px_rgba(255,255,255,0.1)]
+        relative transition-all duration-500 ease-in-out outline-none /* Remove borda de foco padrão */
         ${isOpen ? 'flex flex-row gap-8 w-full max-w-6xl aspect-[16/9] max-h-[700px]' : 'flex flex-col gap-6 w-full max-w-[400px] pb-8'}
       `}>
         
@@ -39,8 +81,7 @@ function App() {
               DEV <span className="text-[var(--btn-orange)]">DECK</span>
             </div>
             
-            {/* Botão Físico para Alternar Tema */}
-            <button onClick={toggleTheme} className="ko-key ko-key-gray w-10 h-10 rounded-full" title="Toggle Dark Mode">
+            <button onClick={toggleTheme} className="ko-key ko-key-gray w-10 h-10 rounded-full" title="Toggle Dark Mode (or press T)">
                 {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
         </div>
@@ -49,12 +90,10 @@ function App() {
           OP: {user} // {isDarkMode ? 'NIGHT' : 'DAY'} MODE
         </div>
 
-        {/* --- SEÇÃO ESQUERDA: PLAYER --- */}
         <div className={`flex flex-col gap-8 pt-16 ${isOpen ? 'w-5/12' : 'w-full'}`}>
           <Player compact={!isOpen} />
         </div>
 
-        {/* --- SEÇÃO DIREITA: CHAT --- */}
         <div className={`flex flex-col relative ${isOpen ? 'w-7/12 h-full pt-16' : 'w-full h-[450px]'}`}>
           <Chat />
         </div>
