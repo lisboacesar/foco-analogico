@@ -32,7 +32,6 @@ export const Chat = () => {
 
     switch (command) {
       case '/help':
-        // Atualizei a mensagem de ajuda
         addChatMessage({ id: Date.now() + 1, user: "System", text: "CMDS: /play, /stop, /clear, /bg [1-9], /time" });
         break;
       
@@ -50,7 +49,6 @@ export const Chat = () => {
       
       case '/bg':
         const videoId = parseInt(arg);
-        // Atualizei a validação para aceitar até 9
         if (videoId >= 1 && videoId <= 9) {
             setVideo(videoId);
             addChatMessage({ id: Date.now() + 1, user: "System", text: `Display background updated to CH:0${videoId}` });
@@ -96,19 +94,23 @@ export const Chat = () => {
       </div>
 
       <form onSubmit={handleSend} className="bg-[var(--btn-gray)] p-2 rounded border-t border-[var(--chassis-border)] flex gap-2 z-20 shadow-lg relative transition-colors duration-300">
-        <div className="flex items-center justify-center pl-2 text-[var(--text-secondary)]">
+        <div className="flex items-center justify-center pl-1 text-[var(--text-secondary)]">
             <Terminal size={16} />
         </div>
+        
+        {/* CORREÇÃO AQUI: min-w-0 permite que o input encolha se necessário */}
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="TYPE COMMAND..."
-          className="flex-1 bg-[var(--screen-bg)] border border-[var(--screen-border)] text-neon font-mono px-3 py-2 focus:outline-none focus:border-btn-orange/50 transition-colors rounded placeholder:text-neon/30 uppercase shadow-inner"
+          className="flex-1 min-w-0 bg-[var(--screen-bg)] border border-[var(--screen-border)] text-neon font-mono px-3 py-2 focus:outline-none focus:border-btn-orange/50 transition-colors rounded placeholder:text-neon/30 uppercase shadow-inner text-sm"
           autoComplete="off"
         />
-        <button type="submit" disabled={!input.trim()} className="ko-key ko-key-orange px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
-          SEND <Send size={14} />
+        
+        {/* CORREÇÃO AQUI: Botão responsivo (texto some no mobile) */}
+        <button type="submit" disabled={!input.trim()} className="ko-key ko-key-orange px-3 py-2 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none shrink-0">
+          <span className="hidden sm:inline font-bold">SEND</span> <Send size={16} />
         </button>
       </form>
     </div>

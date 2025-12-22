@@ -6,7 +6,6 @@ import { useStore } from './store';
 import { Moon, Sun } from 'lucide-react';
 
 function App() {
-  // 1. Trazemos as funções de controle da Store
   const { user, isDarkMode, toggleTheme, togglePlay, volume, setVolume } = useStore();
   const [isOpen, setIsOpen] = useState(true);
 
@@ -18,83 +17,68 @@ function App() {
     return () => window.removeEventListener('resize', checkSize);
   }, []);
 
-  // --- 2. LÓGICA DE ATALHOS DE TECLADO (A Mágica Acontece Aqui) ---
+  // Lógica de Atalhos (mantida igual)
   const handleKeyPress = useCallback((event) => {
-    // A REGRA DE OURO: Se o usuário estiver digitando num input, IGNORE o atalho.
-    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-      return;
-    }
-
+    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
     switch (event.code) {
-      case 'Space': // Barra de Espaço: Play/Pause
-        event.preventDefault(); // Impede a página de rolar para baixo
-        togglePlay();
-        break;
-
-      case 'KeyM': // Tecla M: Mute (Zera volume ou volta para 50%)
-        const newMuteVolume = volume > 0 ? 0 : 50;
-        setVolume(newMuteVolume);
-        break;
-        
-      case 'ArrowUp': // Seta Cima: Aumenta Volume (+10)
-        event.preventDefault();
-        setVolume(Math.min(parseInt(volume) + 10, 100)); // Math.min impede passar de 100
-        break;
-
-      case 'ArrowDown': // Seta Baixo: Diminui Volume (-10)
-        event.preventDefault();
-        setVolume(Math.max(parseInt(volume) - 10, 0)); // Math.max impede passar de 0
-        break;
-        
-      // (Futuro) case 'KeyK': Poderíamos abrir um modal de ajuda aqui
-      default:
-        break;
+      case 'Space': event.preventDefault(); togglePlay(); break;
+      case 'KeyM': setVolume(volume > 0 ? 0 : 50); break;
+      case 'ArrowUp': event.preventDefault(); setVolume(Math.min(parseInt(volume) + 10, 100)); break;
+      case 'ArrowDown': event.preventDefault(); setVolume(Math.max(parseInt(volume) - 10, 0)); break;
+      default: break;
     }
-  }, [togglePlay, volume, setVolume]); // Dependências para o useCallback
+  }, [togglePlay, volume, setVolume]);
 
-  // Adiciona e remove o ouvinte de teclado quando o app monta/desmonta
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
+    return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleKeyPress]);
-
 
   if (!user) return <Login />;
 
   return (
-    <div className={`min-h-screen w-full flex items-center justify-center p-4 md:p-8 transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen w-full flex items-center justify-center p-4 transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
       
-      {/* --- O APARELHO (CHASSI PRINCIPAL) --- */}
+      {/* --- O APARELHO (CHASSI) --- */}
       <div className={`
         bg-[var(--chassis-bg)] border-2 border-[var(--chassis-border)] 
-        p-6 rounded-[16px]
+        rounded-[16px]
         shadow-[10px_14px_30px_var(--shadow-color),_-2px_-2px_10px_rgba(255,255,255,0.1)]
-        relative transition-all duration-500 ease-in-out outline-none /* Remove borda de foco padrão */
-        ${isOpen ? 'flex flex-row gap-8 w-full max-w-6xl aspect-[16/9] max-h-[700px]' : 'flex flex-col gap-6 w-full max-w-[400px] pb-8'}
+        relative transition-all duration-500 ease-in-out outline-none
+        /* LÓGICA RESPONSIVA REFINADA: */
+        ${isOpen 
+           ? 'flex flex-row gap-8 w-full max-w-6xl aspect-[16/9] max-h-[700px] p-6' // DESKTOP
+           : 'flex flex-col gap-4 w-full max-w-[360px] py-6 px-5 h-auto' // MOBILE (Mais estreito e altura automática)
+         }
       `}>
         
-        {/* Marca e Botão de Tema */}
-        <div className="absolute top-6 left-8 flex items-center gap-4">
+        {/* --- CABEÇALHO (Marca e Tema) --- */}
+        {/* No Mobile: Vira flexbox normal (relative) para não encavalar. No Desktop: Fica absolute. */}
+        <div className={`flex items-center justify-between z-50 ${isOpen ? 'absolute top-6 left-8 gap-4' : 'w-full mb-2'}`}>
             <div className="font-bold text-2xl tracking-tight opacity-80 text-[var(--text-primary)]">
               DEV <span className="text-[var(--btn-orange)]">DECK</span>
             </div>
             
-            <button onClick={toggleTheme} className="ko-key ko-key-gray w-10 h-10 rounded-full" title="Toggle Dark Mode (or press T)">
+            <button onClick={toggleTheme} className="ko-key ko-key-gray w-10 h-10 rounded-full flex items-center justify-center" title="Toggle Theme">
                 {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
         </div>
 
-        <div className="absolute top-7 right-8 font-mono text-xs uppercase tracking-widest opacity-60 text-[var(--text-secondary)]">
-          OP: {user} // {isDarkMode ? 'NIGHT' : 'DAY'} MODE
-        </div>
+        {/* Info do OP (Só exibe no Desktop para limpar o visual mobile) */}
+        {isOpen && (
+          <div className="absolute top-7 right-8 font-mono text-xs uppercase tracking-widest opacity-60 text-[var(--text-secondary)]">
+            OP: {user} // {isDarkMode ? 'NIGHT' : 'DAY'} MODE
+          </div>
+        )}
 
-        <div className={`flex flex-col gap-8 pt-16 ${isOpen ? 'w-5/12' : 'w-full'}`}>
+        {/* --- ÁREA DO PLAYER --- */}
+        <div className={`flex flex-col gap-6 ${isOpen ? 'w-5/12 pt-16' : 'w-full'}`}>
           <Player compact={!isOpen} />
         </div>
 
-        <div className={`flex flex-col relative ${isOpen ? 'w-7/12 h-full pt-16' : 'w-full h-[450px]'}`}>
+        {/* --- ÁREA DO CHAT --- */}
+        {/* Correção Crítica: Reduzi a altura fixa mobile de 450px para 280px */}
+        <div className={`flex flex-col relative ${isOpen ? 'w-7/12 h-full pt-16' : 'w-full h-[280px]'}`}>
           <Chat />
         </div>
 
