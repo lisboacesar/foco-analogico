@@ -32,7 +32,8 @@ export const Chat = () => {
 
     switch (command) {
       case '/help':
-        addChatMessage({ id: Date.now() + 1, user: "System", text: "CMDS: /play, /stop, /clear, /bg [1-9], /time" });
+        // ATUALIZADO: Mostra o range correto [1-25]
+        addChatMessage({ id: Date.now() + 1, user: "System", text: "CMDS: /play, /stop, /clear, /bg [1-25], /time" });
         break;
       
       case '/clear':
@@ -49,11 +50,12 @@ export const Chat = () => {
       
       case '/bg':
         const videoId = parseInt(arg);
-        if (videoId >= 1 && videoId <= 9) {
+        // ATUALIZADO: Aceita IDs de 1 até 25
+        if (videoId >= 1 && videoId <= 25) {
             setVideo(videoId);
-            addChatMessage({ id: Date.now() + 1, user: "System", text: `Display background updated to CH:0${videoId}` });
+            addChatMessage({ id: Date.now() + 1, user: "System", text: `Display background updated to CH:${videoId.toString().padStart(2, '0')}` });
         } else {
-            addChatMessage({ id: Date.now() + 1, user: "Error", text: "Invalid ID. Use 1-9." });
+            addChatMessage({ id: Date.now() + 1, user: "Error", text: "Invalid ID. Use 1-25." });
         }
         break;
 
@@ -98,7 +100,6 @@ export const Chat = () => {
             <Terminal size={16} />
         </div>
         
-        {/* CORREÇÃO AQUI: min-w-0 permite que o input encolha se necessário */}
         <input
           type="text"
           value={input}
@@ -108,7 +109,6 @@ export const Chat = () => {
           autoComplete="off"
         />
         
-        {/* CORREÇÃO AQUI: Botão responsivo (texto some no mobile) */}
         <button type="submit" disabled={!input.trim()} className="ko-key ko-key-orange px-3 py-2 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none shrink-0">
           <span className="hidden sm:inline font-bold">SEND</span> <Send size={16} />
         </button>
